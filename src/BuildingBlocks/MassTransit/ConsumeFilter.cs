@@ -1,8 +1,10 @@
-﻿using BuildingBlocks.Core.Event;
-using BuildingBlocks.PersistMessageProcessor;
 using MassTransit;
 
 namespace BuildingBlocks.MassTransit;
+
+using BuildingBlocks.Core.Event;
+using BuildingBlocks.PersistMessageProcessor;
+
 
 // Handle inbox messages with masstransit pipeline
 public class ConsumeFilter<T> : IFilter<ConsumeContext<T>>
@@ -15,10 +17,15 @@ public class ConsumeFilter<T> : IFilter<ConsumeContext<T>>
         _persistMessageProcessor = persistMessageProcessor;
     }
 
+    public void Probe(ProbeContext context)
+    {
+        return;
+    }
+
     public async Task Send(ConsumeContext<T> context, IPipe<ConsumeContext<T>> next)
     {
         var id = await _persistMessageProcessor.AddReceivedMessageAsync(
-            new MessageEnvelope(
+            new MessagePayload(
                 context.Message,
                 context.Headers.ToDictionary(x => x.Key, x => x.Value))
         );
@@ -30,9 +37,5 @@ public class ConsumeFilter<T> : IFilter<ConsumeContext<T>>
             await next.Send(context);
             await _persistMessageProcessor.ProcessInboxAsync(id);
         }
-    }
-
-    public void Probe(ProbeContext context)
-    {
     }
 }

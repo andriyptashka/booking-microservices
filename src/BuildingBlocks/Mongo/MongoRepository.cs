@@ -1,19 +1,19 @@
+namespace BuildingBlocks.Mongo;
+
 using System.Linq.Expressions;
 using BuildingBlocks.Core.Model;
 using MongoDB.Driver;
-
-namespace BuildingBlocks.Mongo;
 
 public class MongoRepository<TEntity, TId> : IMongoRepository<TEntity, TId>
     where TEntity : class, IAggregate<TId>
 {
     private readonly IMongoDbContext _context;
-    protected readonly IMongoCollection<TEntity> DbSet;
+    protected readonly IMongoCollection<TEntity> Collection;
 
     public MongoRepository(IMongoDbContext context)
     {
         _context = context;
-        DbSet = _context.GetCollection<TEntity>();
+        Collection = _context.GetCollection<TEntity>();
     }
 
     public void Dispose()
@@ -30,19 +30,19 @@ public class MongoRepository<TEntity, TId> : IMongoRepository<TEntity, TId>
         Expression<Func<TEntity, bool>> predicate,
         CancellationToken cancellationToken = default)
     {
-        return DbSet.Find(predicate).SingleOrDefaultAsync(cancellationToken: cancellationToken)!;
+        return Collection.Find(predicate).SingleOrDefaultAsync(cancellationToken: cancellationToken)!;
     }
 
     public async Task<IReadOnlyList<TEntity>> FindAsync(
         Expression<Func<TEntity, bool>> predicate,
         CancellationToken cancellationToken = default)
     {
-        return await DbSet.Find(predicate).ToListAsync(cancellationToken: cancellationToken)!;
+        return await Collection.Find(predicate).ToListAsync(cancellationToken: cancellationToken)!;
     }
 
     public async Task<IReadOnlyList<TEntity>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        return await DbSet.AsQueryable().ToListAsync(cancellationToken);
+        return await Collection.AsQueryable().ToListAsync(cancellationToken);
     }
 
     public Task<IReadOnlyList<TEntity>> RawQuery(
@@ -55,35 +55,35 @@ public class MongoRepository<TEntity, TId> : IMongoRepository<TEntity, TId>
 
     public async Task<TEntity> AddAsync(TEntity entity, CancellationToken cancellationToken = default)
     {
-        await DbSet.InsertOneAsync(entity, new InsertOneOptions(), cancellationToken);
+        await Collection.InsertOneAsync(entity, new InsertOneOptions(), cancellationToken);
 
         return entity;
     }
 
     public async Task<TEntity> UpdateAsync(TEntity entity, CancellationToken cancellationToken = default)
     {
-        await DbSet.ReplaceOneAsync(e => e.Id.Equals(entity.Id), entity, new ReplaceOptions(), cancellationToken);
+        await Collection.ReplaceOneAsync(e => e.Id.Equals(entity.Id), entity, new ReplaceOptions(), cancellationToken);
 
         return entity;
     }
 
     public Task DeleteRangeAsync(IReadOnlyList<TEntity> entities, CancellationToken cancellationToken = default)
     {
-        return DbSet.DeleteOneAsync(e => entities.Any(i => e.Id.Equals(i.Id)), cancellationToken);
+        return Collection.DeleteOneAsync(e => entities.Any(i => e.Id.Equals(i.Id)), cancellationToken);
     }
 
     public Task DeleteAsync(
         Expression<Func<TEntity, bool>> predicate,
         CancellationToken cancellationToken = default)
-        => DbSet.DeleteOneAsync(predicate, cancellationToken);
+        => Collection.DeleteOneAsync(predicate, cancellationToken);
 
     public Task DeleteAsync(TEntity entity, CancellationToken cancellationToken = default)
     {
-        return DbSet.DeleteOneAsync(e => e.Id.Equals(entity.Id), cancellationToken);
+        return Collection.DeleteOneAsync(e => e.Id.Equals(entity.Id), cancellationToken);
     }
 
     public Task DeleteByIdAsync(TId id, CancellationToken cancellationToken = default)
     {
-        return DbSet.DeleteOneAsync(e => e.Id.Equals(id), cancellationToken);
+        return DbSCollectiont.DeleteOneAsync(e => e.Id.Equals(id), cancellationToken);
     }
 }

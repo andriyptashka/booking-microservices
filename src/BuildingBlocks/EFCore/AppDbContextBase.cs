@@ -32,7 +32,10 @@ public abstract class AppDbContextBase : DbContext, IDbContext
 
     public async Task BeginTransactionAsync(CancellationToken cancellationToken = default)
     {
-        if (_currentTransaction != null) return;
+        if (_currentTransaction != null)
+        {
+            return;
+        }
 
         _currentTransaction = await Database.BeginTransactionAsync(IsolationLevel.ReadCommitted, cancellationToken);
     }
@@ -69,8 +72,6 @@ public abstract class AppDbContextBase : DbContext, IDbContext
         }
     }
 
-
-    //ref: https://learn.microsoft.com/en-us/ef/core/miscellaneous/connection-resiliency#execution-strategies-and-transactions
     public Task ExecuteTransactionalAsync(CancellationToken cancellationToken = default)
     {
         var strategy = CreateExecutionStrategy();
@@ -98,7 +99,7 @@ public abstract class AppDbContextBase : DbContext, IDbContext
         {
             return await base.SaveChangesAsync(cancellationToken);
         }
-        //ref: https://learn.microsoft.com/en-us/ef/core/saving/concurrency?tabs=data-annotations#resolving-concurrency-conflicts
+
         catch (DbUpdateConcurrencyException ex)
         {
             foreach (var entry in ex.Entries)
@@ -111,7 +112,6 @@ public abstract class AppDbContextBase : DbContext, IDbContext
                     throw;
                 }
 
-                // Refresh the original values to bypass next concurrency check
                 entry.OriginalValues.SetValues(databaseValues);
             }
 

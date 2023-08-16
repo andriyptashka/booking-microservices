@@ -1,9 +1,8 @@
-namespace BuildingBlocks.Exception
+namespace BuildingBlocks.Exception;
+
+public class NotFoundException : CustomException
 {
-    public class NotFoundException : CustomException
+    public NotFoundException(string message, int? code = null) : base(message, code: code)
     {
-        public NotFoundException(string message, int? code = null) : base(message, code: code)
-        {
-        }
     }
 }

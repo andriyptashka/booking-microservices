@@ -5,7 +5,7 @@ using BuildingBlocks.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using MessageEnvelope = BuildingBlocks.Core.Event.MessageEnvelope;
+using MessageEnvelope = BuildingBlocks.Core.Event.MessagePayload;
 
 namespace BuildingBlocks.Core;
 

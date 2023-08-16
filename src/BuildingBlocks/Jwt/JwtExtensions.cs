@@ -1,8 +1,8 @@
+namespace BuildingBlocks.Jwt;
+
 using BuildingBlocks.Web;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.DependencyInjection;
-
-namespace BuildingBlocks.Jwt;
 
 using Duende.IdentityServer.EntityFramework.Entities;
 using Microsoft.IdentityModel.Tokens;
@@ -13,21 +13,22 @@ public static class JwtExtensions
     {
         var jwtOptions = services.GetOptions<JwtBearerOptions>("Jwt");
 
-        services.AddAuthentication(o => {
-                o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                o.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
+        services.AddAuthentication(authOptions =>
+        {
+            authOptions.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            authOptions.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
             .AddCookie(cfg => cfg.SlidingExpiration = true)
-            .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
+            .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, jwtOptions =>
             {
-                options.Authority = jwtOptions.Authority;
-                options.TokenValidationParameters = new TokenValidationParameters
+                jwtOptions.Authority = jwtOptions.Authority;
+                jwtOptions.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateAudience = false,
-                    ClockSkew = TimeSpan.FromSeconds(2) // For prevent add default value (5min) to life time token!
+                    ClockSkew = TimeSpan.FromSeconds(2)
                 };
-                options.RequireHttpsMetadata = jwtOptions.RequireHttpsMetadata;
-                options.MetadataAddress= jwtOptions.MetadataAddress;
+                jwtOptions.RequireHttpsMetadata = jwtOptions.RequireHttpsMetadata;
+                jwtOptions.MetadataAddress = jwtOptions.MetadataAddress;
             });
 
         if (!string.IsNullOrEmpty(jwtOptions.Audience))

@@ -1,10 +1,10 @@
-﻿using Google.Protobuf;
+using Google.Protobuf;
 
 namespace BuildingBlocks.Core.Event;
 
-public class MessageEnvelope
+public class MessagePayload
 {
-    public MessageEnvelope(object? message, IDictionary<string, object?>? headers = null)
+    public MessagePayload(object? message, IDictionary<string, object?>? headers = null)
     {
         Message = message;
         Headers = headers ?? new Dictionary<string, object?>();
@@ -14,7 +14,7 @@ public class MessageEnvelope
     public IDictionary<string, object?> Headers { get; init; }
 }
 
-public class MessageEnvelope<TMessage> : MessageEnvelope
+public class MessageEnvelope<TMessage> : MessagePayload
     where TMessage : class, IMessage
 {
     public MessageEnvelope(TMessage message, IDictionary<string, object?> header) : base(message, header)

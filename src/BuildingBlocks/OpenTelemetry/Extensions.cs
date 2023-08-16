@@ -1,4 +1,3 @@
-using BuildingBlocks.Utils;
 using BuildingBlocks.Web;
 using Microsoft.Extensions.DependencyInjection;
 using OpenTelemetry.Resources;

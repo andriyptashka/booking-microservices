@@ -1,7 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-
 namespace BuildingBlocks.PersistMessageProcessor.Data.Configurations;
+
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 public class PersistMessageConfiguration : IEntityTypeConfiguration<PersistMessage>
 {
@@ -12,10 +12,11 @@ public class PersistMessageConfiguration : IEntityTypeConfiguration<PersistMessa
         builder.HasKey(x => x.Id);
 
         builder.Property(r => r.Id)
-            .IsRequired().ValueGeneratedNever();
+            .IsRequired()
+            .ValueGeneratedNever();
 
-        // // ref: https://learn.microsoft.com/en-us/ef/core/saving/concurrency?tabs=fluent-api
-        builder.Property(r => r.Version).IsConcurrencyToken();
+        builder.Property(r => r.Version)
+            .IsConcurrencyToken();
 
         builder.Property(x => x.DeliveryType)
             .HasDefaultValue(MessageDeliveryType.Outbox)

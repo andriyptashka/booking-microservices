@@ -1,7 +1,6 @@
-using System.Net;
-using OpenTelemetry.Trace;
-
 namespace BuildingBlocks.Exception;
+
+using System.Net;
 
 public class AppException : CustomException
 {

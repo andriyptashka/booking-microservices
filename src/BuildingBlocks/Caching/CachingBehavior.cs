@@ -1,4 +1,4 @@
-﻿using EasyCaching.Core;
+using EasyCaching.Core;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
@@ -30,8 +30,7 @@ public class CachingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
         var cachedResponse = await _cachingProvider.GetAsync<TResponse>(cacheKey);
         if (cachedResponse.Value != null)
         {
-            _logger.LogDebug("Response retrieved {TRequest} from cache. CacheKey: {CacheKey}",
-                typeof(TRequest).FullName, cacheKey);
+            _logger.LogDebug($"Obtained {typeof(TRequest).FullName} from cache. CacheKey: {cacheKey}");
             return cachedResponse.Value;
         }
 

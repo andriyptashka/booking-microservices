@@ -1,8 +1,7 @@
-﻿using BuildingBlocks.EFCore;
-using Microsoft.EntityFrameworkCore;
-
 namespace BuildingBlocks.PersistMessageProcessor.Data;
 
+using BuildingBlocks.EFCore;
+using Microsoft.EntityFrameworkCore;
 using Configurations;
 using Core.Model;
 using Microsoft.Extensions.Logging;
@@ -29,41 +28,40 @@ public class PersistMessageDbContext : DbContext, IPersistMessageDbContext
         builder.ToSnakeCaseTables();
     }
 
-    //ref: https://learn.microsoft.com/en-us/ef/core/miscellaneous/connection-resiliency#execution-strategies-and-transactions
-    public Task ExecuteTransactionalAsync(CancellationToken cancellationToken = default)
+    public Task ExecuteTransactionalAsync(CancellationToken token = default)
     {
         var strategy = Database.CreateExecutionStrategy();
         return strategy.ExecuteAsync(async () =>
         {
             await using var transaction =
-                await Database.BeginTransactionAsync(IsolationLevel.ReadCommitted, cancellationToken);
+                await Database.BeginTransactionAsync(IsolationLevel.ReadCommitted, token);
             try
             {
-                await SaveChangesAsync(cancellationToken);
-                await transaction.CommitAsync(cancellationToken);
+                await SaveChangesAsync(token);
+                await transaction.CommitAsync(token);
             }
             catch
             {
-                await transaction.RollbackAsync(cancellationToken);
+                await transaction.RollbackAsync(token);
                 throw;
             }
         });
     }
 
-    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    public override async Task<int> SaveChangesAsync(CancellationToken token = default)
     {
         OnBeforeSaving();
 
         try
         {
-            return await base.SaveChangesAsync(cancellationToken);
+            return await base.SaveChangesAsync(token);
         }
-        //ref: https://learn.microsoft.com/en-us/ef/core/saving/concurrency?tabs=data-annotations#resolving-concurrency-conflicts
+
         catch (DbUpdateConcurrencyException ex)
         {
             foreach (var entry in ex.Entries)
             {
-                var databaseValues = await entry.GetDatabaseValuesAsync(cancellationToken);
+                var databaseValues = await entry.GetDatabaseValuesAsync(token);
 
                 if (databaseValues == null)
                 {
@@ -71,11 +69,10 @@ public class PersistMessageDbContext : DbContext, IPersistMessageDbContext
                     throw;
                 }
 
-                // Refresh the original values to bypass next concurrency check
                 entry.OriginalValues.SetValues(databaseValues);
             }
 
-            return await base.SaveChangesAsync(cancellationToken);
+            return await base.SaveChangesAsync(token);
         }
     }
 

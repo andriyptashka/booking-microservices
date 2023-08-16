@@ -1,7 +1,6 @@
-﻿namespace BuildingBlocks.Core.Pagination;
+namespace BuildingBlocks.Core.Pagination;
 
-public interface IPageList<T>
-    where T : class
+public interface IPageList<T> where T : class
 {
     int CurrentPageSize { get; }
     int CurrentStartIndex { get; }

@@ -1,15 +1,15 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+namespace BuildingBlocks.PersistMessageProcessor;
+
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-
-namespace BuildingBlocks.PersistMessageProcessor;
 
 public class PersistMessageBackgroundService : BackgroundService
 {
     private readonly ILogger<PersistMessageBackgroundService> _logger;
     private readonly IServiceProvider _serviceProvider;
-    private PersistMessageOptions _options;
+    private readonly PersistMessageOptions _options;
 
     private Task? _executingTask;
 
@@ -18,6 +18,9 @@ public class PersistMessageBackgroundService : BackgroundService
         IServiceProvider serviceProvider,
         IOptions<PersistMessageOptions> options)
     {
+        ArgumentNullException.ThrowIfNull(logger, nameof(logger));
+        ArgumentNullException.ThrowIfNull(serviceProvider, nameof(serviceProvider));
+        ArgumentNullException.ThrowIfNull(options, nameof(options));
         _logger = logger;
         _serviceProvider = serviceProvider;
         _options = options.Value;
@@ -25,7 +28,7 @@ public class PersistMessageBackgroundService : BackgroundService
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _logger.LogInformation("PersistMessage Background Service Start");
+        _logger.LogInformation("PersistMessage Background Service Starting");
 
         _executingTask = ProcessAsync(stoppingToken);
 
@@ -34,7 +37,7 @@ public class PersistMessageBackgroundService : BackgroundService
 
     public override Task StopAsync(CancellationToken cancellationToken)
     {
-        _logger.LogInformation("PersistMessage Background Service Stop");
+        _logger.LogInformation("PersistMessage Background Service Stopping");
 
         return base.StopAsync(cancellationToken);
     }

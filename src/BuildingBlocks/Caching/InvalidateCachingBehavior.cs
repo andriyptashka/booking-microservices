@@ -22,7 +22,6 @@ namespace BuildingBlocks.Caching
         {
             if (request is not IInvalidateCacheRequest invalidateCacheRequest)
             {
-                // No cache request found, so just continue through the pipeline
                 return await next();
             }
 
@@ -30,8 +29,6 @@ namespace BuildingBlocks.Caching
             var response = await next();
 
             await _cachingProvider.RemoveAsync(cacheKey);
-
-            _logger.LogDebug("Cache data with cache key: {CacheKey} removed.", cacheKey);
 
             return response;
         }

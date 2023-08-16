@@ -1,7 +1,7 @@
+namespace BuildingBlocks.Jwt;
+
 using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Http;
-
-namespace BuildingBlocks.Jwt;
 
 public class AuthHeaderHandler : DelegatingHandler
 {
@@ -12,12 +12,11 @@ public class AuthHeaderHandler : DelegatingHandler
         _httpContext = httpContext;
     }
 
-    protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
-        CancellationToken cancellationToken)
+    protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
-        var token = (_httpContext?.HttpContext?.Request.Headers["Authorization"])?.ToString();
+        var ct = (_httpContext?.HttpContext?.Request.Headers["Authorization"])?.ToString();
 
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token?.Replace("Bearer ", ""));
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", ct?.Replace("Bearer ", ""));
 
         return base.SendAsync(request, cancellationToken);
     }

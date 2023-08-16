@@ -1,15 +1,12 @@
+namespace BuildingBlocks.MassTransit;
+
 using System.Reflection;
-using BuildingBlocks.Core.Event;
 using BuildingBlocks.Web;
-using Humanizer;
-using MassTransit;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-
-namespace BuildingBlocks.MassTransit;
-
 using Exception;
+using global::MassTransit;
 
 public static class Extensions
 {
