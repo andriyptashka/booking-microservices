@@ -1,6 +1,6 @@
-using MediatR;
-
 namespace BuildingBlocks.Core.Event;
+
+using MediatR;
 
 using global::MassTransit;
 

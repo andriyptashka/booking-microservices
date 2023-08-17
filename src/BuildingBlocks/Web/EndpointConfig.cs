@@ -1,6 +1,6 @@
-﻿using Asp.Versioning.Builder;
-
 namespace BuildingBlocks.Web;
+
+using Asp.Versioning.Builder;
 
 public class EndpointConfig
 {

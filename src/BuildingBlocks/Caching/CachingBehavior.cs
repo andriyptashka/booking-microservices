@@ -1,8 +1,8 @@
+namespace BuildingBlocks.Caching;
+
 using EasyCaching.Core;
 using MediatR;
 using Microsoft.Extensions.Logging;
-
-namespace BuildingBlocks.Caching;
 
 public class CachingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
     where TRequest : notnull, IRequest<TResponse>
@@ -23,8 +23,9 @@ public class CachingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
         CancellationToken cancellationToken)
     {
         if (request is not ICacheRequest cacheRequest)
-            // No cache request found, so just continue through the pipeline
+        {
             return await next();
+        }
 
         var cacheKey = cacheRequest.CacheKey;
         var cachedResponse = await _cachingProvider.GetAsync<TResponse>(cacheKey);

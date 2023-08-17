@@ -72,8 +72,7 @@ public class MongoRepository<TEntity, TId> : IMongoRepository<TEntity, TId>
         return Collection.DeleteOneAsync(e => entities.Any(i => e.Id.Equals(i.Id)), cancellationToken);
     }
 
-    public Task DeleteAsync(
-        Expression<Func<TEntity, bool>> predicate,
+    public Task DeleteAsync(Expression<Func<TEntity, bool>> predicate,
         CancellationToken cancellationToken = default)
         => Collection.DeleteOneAsync(predicate, cancellationToken);
 
@@ -84,6 +83,6 @@ public class MongoRepository<TEntity, TId> : IMongoRepository<TEntity, TId>
 
     public Task DeleteByIdAsync(TId id, CancellationToken cancellationToken = default)
     {
-        return DbSCollectiont.DeleteOneAsync(e => e.Id.Equals(id), cancellationToken);
+        return Collection.DeleteOneAsync(e => e.Id.Equals(id), cancellationToken);
     }
 }

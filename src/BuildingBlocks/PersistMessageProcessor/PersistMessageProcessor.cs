@@ -4,12 +4,11 @@ namespace BuildingBlocks.PersistMessageProcessor;
 
 using System.Linq.Expressions;
 using System.Text.Json;
-using Ardalis.GuardClauses;
 using BuildingBlocks.Core.Event;
 using BuildingBlocks.Utils;
 using MediatR;
-using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 public class PersistMessageProcessor : IPersistMessageProcessor
 {
@@ -17,8 +16,7 @@ public class PersistMessageProcessor : IPersistMessageProcessor
     private readonly IMediator _mediator;
     private readonly IPersistMessageDbContext _persistMessageDbContext;
     private readonly IPublishEndpoint _publishEndpoint;
-    public PersistMessageProcessor(
-        ILogger<PersistMessageProcessor> logger,
+    public PersistMessageProcessor(ILogger<PersistMessageProcessor> logger,
         IMediator mediator,
         IPersistMessageDbContext persistMessageDbContext,
         IPublishEndpoint publishEndpoint)
@@ -29,22 +27,20 @@ public class PersistMessageProcessor : IPersistMessageProcessor
         _publishEndpoint = publishEndpoint;
     }
 
-    public async Task PublishMessageAsync<TMessagePayload>(
-        TMessagePayload messagePayload,
-        CancellationToken cancellationToken = default)
-        where TMessagePayload : MessagePayload
+    public async Task PublishMessageAsync<T>(T messagePayload, CancellationToken token = default)
+        where T : MessagePayload
     {
-        await SavePersistMessageAsync(messagePayload, MessageDeliveryType.Outbox, cancellationToken);
+        await SavePersistMessageAsync(messagePayload, MessageDeliveryType.Outbox, token);
     }
 
-    public Task<Guid> AddReceivedMessageAsync<TMessagePayload>(TMessagePayload messagePayload,
-        CancellationToken cancellationToken = default) where TMessagePayload : MessagePayload
+    public Task<Guid> AddReceivedMessageAsync<T>(T messagePayload, CancellationToken token = default)
+        where T : MessagePayload
     {
-        return SavePersistMessageAsync(messagePayload, MessageDeliveryType.Inbox, cancellationToken);
+        return SavePersistMessageAsync(messagePayload, MessageDeliveryType.Inbox, token);
     }
 
-    public async Task AddInternalMessageAsync<TCommand>(TCommand internalCommand,
-        CancellationToken token = default) where TCommand : class, IInternalCommand
+    public async Task AddInternalMessageAsync<T>(T internalCommand, CancellationToken token = default)
+        where T : class, IInternalCommand
     {
         await SavePersistMessageAsync(new MessagePayload(internalCommand), MessageDeliveryType.Internal, token);
     }
@@ -52,8 +48,7 @@ public class PersistMessageProcessor : IPersistMessageProcessor
     public async Task<IReadOnlyList<PersistMessage>> GetByFilterAsync(Expression<Func<PersistMessage, bool>> predicate,
         CancellationToken token = default)
     {
-        return (await _persistMessageDbContext.PersistMessages.Where(predicate).ToListAsync(token))
-            .AsReadOnly();
+        return (await _persistMessageDbContext.PersistMessages.Where(predicate).ToListAsync(token)).AsReadOnly();
     }
 
     public Task<PersistMessage?> ExistMessageAsync(Guid messageId, CancellationToken token = default)
@@ -70,7 +65,7 @@ public class PersistMessageProcessor : IPersistMessageProcessor
         MessageDeliveryType deliveryType,
         CancellationToken token = default)
     {
-        var message =await _persistMessageDbContext.PersistMessages.FirstOrDefaultAsync(
+        var message = await _persistMessageDbContext.PersistMessages.FirstOrDefaultAsync(
                 x => x.Id == messageId && x.DeliveryType == deliveryType, token);
 
         if (message is null)
@@ -122,8 +117,8 @@ public class PersistMessageProcessor : IPersistMessageProcessor
         var message = await _persistMessageDbContext.PersistMessages.FirstOrDefaultAsync(
             x => x.Id == messageId &&
                  x.DeliveryType == MessageDeliveryType.Inbox &&
-                 x.MessageStatus == MessageStatus.InProgress,
-            token) ?? throw new InvalidOperationException($"{nameof(PersistMessage)} with Id:{messageId}, was not found");
+                 x.MessageStatus == MessageStatus.InProgress, token)
+            ?? throw new InvalidOperationException($"{nameof(PersistMessage)} with Id:{messageId}, was not found");
 
         await ChangeMessageStatusAsync(message, token);
     }

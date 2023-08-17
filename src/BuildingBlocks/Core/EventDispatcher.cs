@@ -1,3 +1,5 @@
+namespace BuildingBlocks.Core;
+
 using System.Security.Claims;
 using BuildingBlocks.Core.Event;
 using BuildingBlocks.PersistMessageProcessor;
@@ -5,9 +7,7 @@ using BuildingBlocks.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using MessageEnvelope = BuildingBlocks.Core.Event.MessagePayload;
-
-namespace BuildingBlocks.Core;
+using MessagePayload = BuildingBlocks.Core.Event.MessagePayload;
 
 public sealed class EventDispatcher : IEventDispatcher
 {
@@ -46,7 +46,7 @@ public sealed class EventDispatcher : IEventDispatcher
                 foreach (var integrationEvent in integrationEvents)
                 {
                     await _persistMessageProcessor.PublishMessageAsync(
-                        new MessageEnvelope(integrationEvent, SetHeaders()),
+                        new MessagePayload(integrationEvent, SetHeaders()),
                         cancellationToken);
                 }
             }
@@ -141,14 +141,11 @@ public sealed class EventDispatcher : IEventDispatcher
 
     private IEnumerable<IIntegrationEvent> GetWrappedIntegrationEvents(IReadOnlyList<IDomainEvent> domainEvents)
     {
-        foreach (var domainEvent in domainEvents.Where(x =>
-                     x is IHaveIntegrationEvent))
+        foreach (var domainEvent in domainEvents.Where(x => x is IHaveIntegrationEvent))
         {
-            var genericType = typeof(IntegrationEventWrapper<>)
-                .MakeGenericType(domainEvent.GetType());
+            var genericType = typeof(IntegrationEventWrapper<>).MakeGenericType(domainEvent.GetType());
 
-            var domainNotificationEvent = (IIntegrationEvent)Activator
-                .CreateInstance(genericType, domainEvent);
+            var domainNotificationEvent = (IIntegrationEvent)Activator.CreateInstance(genericType, domainEvent);
 
             yield return domainNotificationEvent;
         }
@@ -156,10 +153,12 @@ public sealed class EventDispatcher : IEventDispatcher
 
     private IDictionary<string, object> SetHeaders()
     {
-        var headers = new Dictionary<string, object>();
-        headers.Add("CorrelationId", _httpContextAccessor?.HttpContext?.GetCorrelationId());
-        headers.Add("UserId", _httpContextAccessor?.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier));
-        headers.Add("UserName", _httpContextAccessor?.HttpContext?.User?.FindFirstValue(ClaimTypes.Name));
+        var headers = new Dictionary<string, object>
+        {
+            { "CorrelationId", _httpContextAccessor?.HttpContext?.GetCorrelationId() },
+            { "UserId", _httpContextAccessor?.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier) },
+            { "UserName", _httpContextAccessor?.HttpContext?.User?.FindFirstValue(ClaimTypes.Name) }
+        };
 
         return headers;
     }

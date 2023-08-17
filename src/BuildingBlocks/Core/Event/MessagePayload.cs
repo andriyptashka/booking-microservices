@@ -1,6 +1,6 @@
-using Google.Protobuf;
-
 namespace BuildingBlocks.Core.Event;
+
+using Google.Protobuf;
 
 public class MessagePayload
 {

@@ -1,6 +1,5 @@
-using BuildingBlocks.Core.Event;
-
 namespace BuildingBlocks.Core;
 
-public record IntegrationEventWrapper<TDomainEventType>(TDomainEventType DomainEvent) : IIntegrationEvent
-    where TDomainEventType : IDomainEvent;
+using BuildingBlocks.Core.Event;
+
+public record IntegrationEventWrapper<T>(T DomainEvent) : IIntegrationEvent where T : IDomainEvent;

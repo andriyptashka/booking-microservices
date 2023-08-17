@@ -1,6 +1,6 @@
-using BuildingBlocks.Core.Event;
-
 namespace BuildingBlocks.Contracts.EventBus.Messages;
+
+using BuildingBlocks.Core.Event;
 
 public record FlightCreated(Guid Id) : IIntegrationEvent;
 public record FlightUpdated(Guid Id) : IIntegrationEvent;

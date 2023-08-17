@@ -11,7 +11,8 @@ using global::MassTransit;
 public static class Extensions
 {
     public static IServiceCollection AddCustomMassTransit(this IServiceCollection services,
-        IWebHostEnvironment env, Assembly assembly)
+        IWebHostEnvironment env,
+        Assembly assembly)
     {
         services.AddValidateOptions<RabbitMqOptions>();
 
@@ -24,7 +25,10 @@ public static class Extensions
         }
         else
         {
-            services.AddMassTransit(configure => { SetupMasstransitConfigurations(services, configure, assembly); });
+            services.AddMassTransit(configure =>
+            {
+                SetupMasstransitConfigurations(services, configure, assembly);
+            });
         }
 
         return services;
@@ -42,11 +46,12 @@ public static class Extensions
         {
             var rabbitMqOptions = services.GetOptions<RabbitMqOptions>(nameof(RabbitMqOptions));
 
-            configurator.Host(rabbitMqOptions?.HostName, rabbitMqOptions?.Port ?? 5672, "/", h =>
-            {
-                h.Username(rabbitMqOptions?.UserName);
-                h.Password(rabbitMqOptions?.Password);
-            });
+            configurator.Host(rabbitMqOptions?.HostName, rabbitMqOptions?.Port ?? 5672, "/",
+                h =>
+                {
+                    h.Username(rabbitMqOptions?.UserName);
+                    h.Password(rabbitMqOptions?.Password);
+                });
 
             configurator.ConfigureEndpoints(context);
 
@@ -57,10 +62,9 @@ public static class Extensions
     private static void AddRetryConfiguration(IRetryConfigurator retryConfigurator)
     {
         retryConfigurator.Exponential(
-                3,
-                TimeSpan.FromMilliseconds(200),
-                TimeSpan.FromMinutes(120),
-                TimeSpan.FromMilliseconds(200))
-            .Ignore<ValidationException>(); // don't retry if we have invalid data and message goes to _error queue masstransit
+            3,
+            TimeSpan.FromMilliseconds(200),
+            TimeSpan.FromMinutes(120),
+            TimeSpan.FromMilliseconds(200)).Ignore<ValidationException>();
     }
 }

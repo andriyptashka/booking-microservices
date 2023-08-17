@@ -169,6 +169,8 @@ public abstract class AppDbContextBase : DbContext, IDbContext
                             entry.Entity.IsDeleted = true;
                             entry.Entity.Version++;
                             break;
+                        default:
+                            break;
                     }
                 }
             }

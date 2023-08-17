@@ -155,7 +155,6 @@
 
 
   <ItemGroup>
-    <Folder Include="Contracts" />
     <Folder Include="Core\Pagination" />
     <Folder Include="EventStoreDB\BackgroundWorkers" />
     <Folder Include="PersistMessageProcessor\Data\Configurations" />
